@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4399376854586962}
   - component: {fileID: 33824537730079500}
   - component: {fileID: 23693811526290372}
+  - component: {fileID: 2937021353791284240}
   - component: {fileID: 136486588218137092}
   m_Layer: 0
   m_Name: Oak_tree1
@@ -85,6 +86,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2937021353791284240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1243781198178196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35af711b270f68547a57c6bb27011e76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ItemName: Tree
 --- !u!136 &136486588218137092
 CapsuleCollider:
   m_ObjectHideFlags: 0

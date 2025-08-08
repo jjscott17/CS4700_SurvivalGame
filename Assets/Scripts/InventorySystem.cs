@@ -34,10 +34,10 @@ public class InventorySystem : MonoBehaviour
     void Start()
     {
         isOpen = false;
-        PopulayeslotList();
+        PopulateslotList();
     }
 
-    private void PopulayeslotList()
+    private void PopulateslotList()
     {
         foreach (Transform child in inventoryScreenUI.transform)
         {
@@ -71,14 +71,14 @@ public class InventorySystem : MonoBehaviour
 
     public void AddToInventory(string itemName)
     {
-            
-            whatSlotToEquip = FindNextSlot();
+        whatSlotToEquip = FindNextSlot();
 
-            itemToAdd = Instantiate(Resources.Load<GameObject>(itemName), whatSlotToEquip.transform.position, whatSlotToEquip.transform.rotation);
-            itemToAdd.transform.SetParent(whatSlotToEquip.transform);
+        itemToAdd = Instantiate(Resources.Load<GameObject>(itemName), whatSlotToEquip.transform);
+        itemToAdd.transform.localScale = Vector3.one;
 
-            itemList.Add(itemName);
+        itemList.Add(itemName);
     }
+
     private GameObject FindNextSlot()
     {
         foreach (GameObject slot in slotList)

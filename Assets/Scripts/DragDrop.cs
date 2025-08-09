@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class DragDrop : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
 {
 
+    [SerializeField] private Canvas canvas;
     private RectTransform rectTransform;
     private CanvasGroup canvasGroup;
 
@@ -25,7 +26,8 @@ public class DragDrop : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDrag
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
         parentCanvas = GetComponentInParent<Canvas>();
-        if (parentCanvas != null) canvasRect = parentCanvas.GetComponent<RectTransform>();
+
+        //if (parentCanvas != null) canvasRect = parentCanvas.GetComponent<RectTransform>();
 
     }
 
@@ -39,7 +41,8 @@ public class DragDrop : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDrag
         canvasGroup.blocksRaycasts = false;
         startPosition = transform.position;
         startParent = transform.parent;
-        rectTransform.SetParent(parentCanvas.transform);
+        transform.SetParent(transform.root);
+        //rectTransform.SetParent(parentCanvas.transform);
         itemBeingDragged = gameObject;
 
     }
@@ -47,15 +50,7 @@ public class DragDrop : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDrag
     public void OnDrag(PointerEventData eventData)
     {
         //So the item will move with our mouse (at same speed)
-        
-        // Convert screen point to local point in canvas RectTransform
-        Vector2 localPoint;
-        Camera cam = parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : parentCanvas.worldCamera;
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, eventData.position, cam, out localPoint))
-        {
-            // set anchored position directly 
-            rectTransform.anchoredPosition = localPoint;
-        }
+        transform.position = Input.mousePosition;
 
     }
 
@@ -72,6 +67,7 @@ public class DragDrop : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDrag
             transform.SetParent(startParent);
 
         }
+        
 
         Debug.Log("OnEndDrag");
         canvasGroup.alpha = 1f;

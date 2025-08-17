@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 23693811526290372}
   - component: {fileID: 2937021353791284240}
   - component: {fileID: 136486588218137092}
+  - component: {fileID: 1546658161597020578}
   m_Layer: 0
   m_Name: Oak_tree1
   m_TagString: Untagged
@@ -98,6 +99,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35af711b270f68547a57c6bb27011e76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerInRange: 0
   ItemName: Tree
 --- !u!136 &136486588218137092
 CapsuleCollider:
@@ -122,3 +124,24 @@ CapsuleCollider:
   m_Height: 8.15
   m_Direction: 1
   m_Center: {x: 0, y: 2.11, z: 0}
+--- !u!65 &1546658161597020578
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1243781198178196}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 30, y: 10, z: 30}
+  m_Center: {x: 0.28219032, y: 6.2752, z: 0.020811081}

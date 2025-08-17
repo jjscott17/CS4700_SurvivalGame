@@ -12,7 +12,7 @@ public class SelectionManager : MonoBehaviour
 
 
     public bool onTarget;
-    
+
     public GameObject interaction_Info_UI;
     TextMeshProUGUI interaction_text;
 
@@ -56,7 +56,7 @@ public class SelectionManager : MonoBehaviour
             }
             else // if there is a hit, but without an interactable script
             {
-                onTarget= false; 
+                onTarget = false;
                 interaction_Info_UI.SetActive(false);
             }
 
@@ -67,4 +67,24 @@ public class SelectionManager : MonoBehaviour
             interaction_Info_UI.SetActive(false);
         }
     }
+    public void EnableSelection()
+{
+    enabled = true;        // turn this component back on so Update() runs
+    ClearSelectionUI();    // reset UI state
+}
+
+public void DisableSelection()
+{
+    enabled = false;       // stop running Update() while menus are open
+    ClearSelectionUI();
+}
+
+private void ClearSelectionUI()
+{
+    onTarget = false;
+    selectedObject = null;
+    if (interaction_Info_UI != null)
+        interaction_Info_UI.SetActive(false);
+}
+
 }

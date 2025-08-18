@@ -8,8 +8,6 @@ public class CraftingSystem : MonoBehaviour
 {
     public GameObject craftingScreenUI;
     public GameObject toolsScreenUI;
-
-    // Construction category screen
     public GameObject constructingScreenUI;
 
     public List<string> inventoryItemList = new List<string>();
@@ -38,15 +36,17 @@ public class CraftingSystem : MonoBehaviour
 
     // Blueprints
     Blueprint AxeBLP;
-
-    // Construction Blueprints
     Blueprint FoundationBLP;
     Blueprint WallBLP;
     Blueprint CampfireBLP;
 
-    // === Tunable costs (Stick + Stone for construction) ===
+    // Toggle: keep buttons visible but disabled (true) or hide them (false)
+    [Header("UX")]
+    [SerializeField] bool showDisabledButtons = true;
+
+    // === Costs (Stick + Stone) ===
     [Header("Construction Costs (Stick + Stone)")]
-    [SerializeField] int foundationStick = 4;
+    [SerializeField] int foundationStick = 0;
     [SerializeField] int foundationStone = 2;
 
     [SerializeField] int wallStick = 3;
@@ -70,17 +70,15 @@ public class CraftingSystem : MonoBehaviour
         isOpen = false;
 
         // --- Blueprints ---
-        // Axe: Stone + Stick (fixed amounts)
-        AxeBLP        = new Blueprint("Axe",        2, "Stone", 3,                "Stick", 3);
+        AxeBLP        = new Blueprint("Axe",        2, "Stone", 3,               "Stick", 3);
+        FoundationBLP = new Blueprint("Foundation", 2, "Stick", foundationStick, "Stone", foundationStone);
+        WallBLP       = new Blueprint("Wall",       2, "Stick", wallStick,       "Stone", wallStone);
+        CampfireBLP   = new Blueprint("Campfire",   2, "Stick", campfireStick,   "Stone", campfireStone);
 
-        // Construction: Stick + Stone (amounts from inspector)
-        FoundationBLP = new Blueprint("Foundation", 2, "Stick", foundationStick,  "Stone", foundationStone);
-        WallBLP       = new Blueprint("Wall",       2, "Stick", wallStick,        "Stone", wallStone);
-        CampfireBLP   = new Blueprint("Campfire",   2, "Stick", campfireStick,    "Stone", campfireStone);
-
-        // --- Category Buttons ---
-        toolsBTN = craftingScreenUI.transform.Find("ToolsButton").GetComponent<Button>();
-        toolsBTN.onClick.AddListener(OpenToolsCategory);
+        // --- Category Buttons (under craftingScreenUI) ---
+        toolsBTN = craftingScreenUI.transform.Find("ToolsButton")?.GetComponent<Button>();
+        if (toolsBTN != null) toolsBTN.onClick.AddListener(OpenToolsCategory);
+        else Debug.LogError("ToolsButton not found under craftingScreenUI");
 
         var constructionBtnTf = craftingScreenUI.transform.Find("ConstructionButton");
         if (constructionBtnTf != null)
@@ -90,16 +88,21 @@ public class CraftingSystem : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("CraftingSystem: 'ConstructionButton' not found under craftingScreenUI. Did you create it?");
+            Debug.LogError("ConstructionButton not found under craftingScreenUI");
         }
 
         // --- Tools UI wiring ---
-        AxeReq1 = toolsScreenUI.transform.Find("Axe").transform.Find("Req1").GetComponent<TextMeshProUGUI>();
-        AxeReq2 = toolsScreenUI.transform.Find("Axe").transform.Find("Req2").GetComponent<TextMeshProUGUI>();
-        craftAxeBTN = toolsScreenUI.transform.Find("Axe").transform.Find("Button").GetComponent<Button>();
-        craftAxeBTN.onClick.AddListener(delegate { CraftAnyItem(AxeBLP); });
+        var axeTf = toolsScreenUI.transform.Find("Axe");
+        if (axeTf != null)
+        {
+            AxeReq1 = axeTf.Find("Req1").GetComponent<TextMeshProUGUI>();
+            AxeReq2 = axeTf.Find("Req2").GetComponent<TextMeshProUGUI>();
+            craftAxeBTN = axeTf.Find("Button").GetComponent<Button>();
+            craftAxeBTN.onClick.AddListener(delegate { CraftAnyItem(AxeBLP); });
+        }
+        else Debug.LogError("toolsScreenUI/Axe not found");
 
-        // --- Construction UI wiring (Foundation) ---
+        // --- Construction UI wiring ---
         var foundationTf = constructingScreenUI.transform.Find("Foundation");
         if (foundationTf != null)
         {
@@ -108,8 +111,8 @@ public class CraftingSystem : MonoBehaviour
             craftFoundationBTN = foundationTf.Find("Button").GetComponent<Button>();
             craftFoundationBTN.onClick.AddListener(delegate { CraftAnyItem(FoundationBLP); });
         }
+        else Debug.LogError("constructingScreenUI/Foundation not found");
 
-        // Wall
         var wallTf = constructingScreenUI.transform.Find("Wall");
         if (wallTf != null)
         {
@@ -118,8 +121,8 @@ public class CraftingSystem : MonoBehaviour
             craftWallBTN = wallTf.Find("Button").GetComponent<Button>();
             craftWallBTN.onClick.AddListener(delegate { CraftAnyItem(WallBLP); });
         }
+        else Debug.LogError("constructingScreenUI/Wall not found");
 
-        // Campfire
         var campfireTf = constructingScreenUI.transform.Find("Campfire");
         if (campfireTf != null)
         {
@@ -128,17 +131,18 @@ public class CraftingSystem : MonoBehaviour
             craftCampfireBTN = campfireTf.Find("Button").GetComponent<Button>();
             craftCampfireBTN.onClick.AddListener(delegate { CraftAnyItem(CampfireBLP); });
         }
+        else Debug.LogError("constructingScreenUI/Campfire not found");
     }
 
     // === Category switching ===
-    void OpenToolsCategory()
+    public void OpenToolsCategory()
     {
         craftingScreenUI.SetActive(false);
         toolsScreenUI.SetActive(true);
         if (constructingScreenUI != null) constructingScreenUI.SetActive(false);
     }
 
-    void OpenConstructionCategory()
+    public void OpenConstructionCategory()
     {
         craftingScreenUI.SetActive(false);
         if (toolsScreenUI != null) toolsScreenUI.SetActive(false);
@@ -148,7 +152,7 @@ public class CraftingSystem : MonoBehaviour
     // === Crafting ===
     void CraftAnyItem(Blueprint blueprintToCraft)
     {
-        // Optional: sanity check before crafting (prevents desync if inventory changed)
+        // Guard: double-check resources so UI and inventory never desync
         if (blueprintToCraft.numOfRequirements == 2)
         {
             if (!HasEnough(blueprintToCraft.Req1, blueprintToCraft.Req1amount)) return;
@@ -171,7 +175,7 @@ public class CraftingSystem : MonoBehaviour
                 InventorySystem.Instance.RemoveItem(blueprintToCraft.Req2, blueprintToCraft.Req2amount);
         }
 
-        // Refresh list
+        // Refresh
         StartCoroutine(calculate());
         RefreshNeededItems();
     }
@@ -187,7 +191,7 @@ public class CraftingSystem : MonoBehaviour
 
     public IEnumerator calculate()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.1f);
         InventorySystem.Instance.ReCalculateList();
     }
 
@@ -230,30 +234,38 @@ public class CraftingSystem : MonoBehaviour
             }
         }
 
-        // ***** AXE (Stone + Stick) ***** //
+        // ***** AXE (Stone + Stick) *****
         if (AxeReq1 != null) AxeReq1.text = "3 stone [" + stone_count + "]";
         if (AxeReq2 != null) AxeReq2.text = "3 stick [" + stick_count + "]";
-        if (craftAxeBTN != null) craftAxeBTN.gameObject.SetActive(stone_count >= 3 && stick_count >= 3);
+        SetButtonState(craftAxeBTN, stone_count >= 3 && stick_count >= 3);
 
-        // ***** FOUNDATION (Stick + Stone) ***** //
+        // ***** FOUNDATION (Stick + Stone) *****
         if (FoundationReq1 != null) FoundationReq1.text = foundationStick + " stick [" + stick_count + "]";
         if (FoundationReq2 != null) FoundationReq2.text = foundationStone + " stone [" + stone_count + "]";
-        if (craftFoundationBTN != null)
-            craftFoundationBTN.gameObject.SetActive(stick_count >= foundationStick && stone_count >= foundationStone);
+        SetButtonState(craftFoundationBTN, stick_count >= foundationStick && stone_count >= foundationStone);
 
-        // ***** WALL (Stick + Stone) ***** //
+        // ***** WALL (Stick + Stone) *****
         if (WallReq1 != null) WallReq1.text = wallStick + " stick [" + stick_count + "]";
         if (WallReq2 != null) WallReq2.text = wallStone + " stone [" + stone_count + "]";
-        if (craftWallBTN != null)
-        {
-            bool ok = stick_count >= wallStick && stone_count >= wallStone;
-            craftWallBTN.gameObject.SetActive(ok);
-        }
+        SetButtonState(craftWallBTN, stick_count >= wallStick && stone_count >= wallStone);
 
-        // ***** CAMPFIRE (Stick + Stone) ***** //
+        // ***** CAMPFIRE (Stick + Stone) *****
         if (CampfireReq1 != null) CampfireReq1.text = campfireStick + " stick [" + stick_count + "]";
         if (CampfireReq2 != null) CampfireReq2.text = campfireStone + " stone [" + stone_count + "]";
-        if (craftCampfireBTN != null)
-            craftCampfireBTN.gameObject.SetActive(stick_count >= campfireStick && stone_count >= campfireStone);
+        SetButtonState(craftCampfireBTN, stick_count >= campfireStick && stone_count >= campfireStone);
+    }
+
+    void SetButtonState(Button btn, bool canCraft)
+    {
+        if (btn == null) return;
+        if (showDisabledButtons)
+        {
+            btn.gameObject.SetActive(true);
+            btn.interactable = canCraft;
+        }
+        else
+        {
+            btn.gameObject.SetActive(canCraft);
+        }
     }
 }
